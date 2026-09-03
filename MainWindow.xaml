@@ -1,12 +1,33 @@
 ﻿<Window x:Class="NTWallpaper.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NTWallpaper"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        xmlns:vm="clr-namespace:NTWallpaper.Presentation.ViewModels"
+        Title="Pixabay Wallpaper Manager" Height="720" Width="1180"
+        WindowStartupLocation="CenterScreen"
+        Background="#FF181818">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
+        <Border Background="#FF101010" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="16">
+                <StackPanel DockPanel.Dock="Top">
+                    <TextBlock Text="Pixabay Wallpaper" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundBrush}" />
+                    <TextBlock Text="Manager" FontSize="13" Foreground="{DynamicResource ForegroundMutedBrush}" Margin="0,0,0,24" />
+                </StackPanel>
+
+                <StackPanel>
+                    <ToggleButton x:Name="NavDashboard" Content="Dashboard" Style="{StaticResource NavButton}" IsChecked="True" Click="Nav_Click" Tag="Dashboard" />
+                    <ToggleButton x:Name="NavGroups" Content="Groups" Style="{StaticResource NavButton}" Click="Nav_Click" Tag="Groups" />
+                    <ToggleButton x:Name="NavHistory" Content="History" Style="{StaticResource NavButton}" Click="Nav_Click" Tag="History" />
+                    <ToggleButton x:Name="NavSearch" Content="Search" Style="{StaticResource NavButton}" Click="Nav_Click" Tag="Search" />
+                    <ToggleButton x:Name="NavSettings" Content="Settings" Style="{StaticResource NavButton}" Click="Nav_Click" Tag="Settings" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ContentControl Grid.Column="1" Content="{Binding CurrentView}" />
     </Grid>
 </Window>

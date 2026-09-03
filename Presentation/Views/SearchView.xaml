@@ -1,0 +1,57 @@
+<UserControl x:Class="NTWallpaper.Presentation.Views.SearchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:NTWallpaper.Presentation.ViewModels"
+             xmlns:conv="clr-namespace:NTWallpaper.Presentation.Converters"
+             d:DataContext="{d:DesignInstance Type=vm:SearchViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Search Pixabay" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundBrush}" />
+
+        <Border Style="{StaticResource CardBorder}" Grid.Row="1" Margin="0,16,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Grid.Column="1" Content="Search" Style="{StaticResource PrimaryButton}" Command="{Binding SearchCommand}" Margin="8,0,0,0" />
+            </Grid>
+        </Border>
+
+        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Foreground="{DynamicResource ForegroundMutedBrush}" Margin="0,0,0,8" />
+
+        <ScrollViewer Grid.Row="2" Margin="0,32,0,0">
+            <ItemsControl ItemsSource="{Binding Results}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="180" Margin="0,0,8,8" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="6">
+                            <StackPanel>
+                                <Border Background="#FF1A1A1A" Height="120">
+                                    <TextBlock Text="Image" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ForegroundMutedBrush}" />
+                                </Border>
+                                <StackPanel Margin="8">
+                                    <TextBlock Text="{Binding SearchTerm}" Foreground="{DynamicResource ForegroundBrush}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Width, StringFormat='{}{0}x'}" Foreground="{DynamicResource ForegroundMutedBrush}" FontSize="11" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

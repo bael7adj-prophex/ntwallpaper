@@ -1,0 +1,39 @@
+<UserControl x:Class="NTWallpaper.Presentation.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:NTWallpaper.Presentation.ViewModels"
+             d:DataContext="{d:DesignInstance Type=vm:HistoryViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+            <TextBlock Text="History" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundBrush}" />
+            <Button Content="Refresh" Style="{StaticResource SecondaryButton}" Command="{Binding RefreshCommand}" Margin="20,0,0,0" />
+        </StackPanel>
+
+        <Border Style="{StaticResource CardBorder}" Grid.Row="1">
+            <DataGrid ItemsSource="{Binding Images}" AutoGenerateColumns="False"
+                      Background="Transparent" Foreground="{DynamicResource ForegroundBrush}"
+                      BorderBrush="{DynamicResource BorderBrush}" HeadersVisibility="Column"
+                      CanUserAddRows="False" IsReadOnly="False"
+                      SelectedItem="{Binding Selected, Mode=TwoWay}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding PixabayId}" Width="80" />
+                    <DataGridTextColumn Header="Search" Binding="{Binding SearchTerm}" Width="*" />
+                    <DataGridTextColumn Header="Resolution" Binding="{Binding Width, StringFormat='{}{0}x'}" Width="90" />
+                    <DataGridTextColumn Header="Size" Binding="{Binding Height}" Width="60" />
+                    <DataGridTextColumn Header="Type" Binding="{Binding ImageType}" Width="80" />
+                    <DataGridTextColumn Header="Used" Binding="{Binding TimesDisplayed}" Width="50" />
+                    <DataGridCheckBoxColumn Header="★" Binding="{Binding IsFavorite}" Width="30" />
+                    <DataGridTextColumn Header="Rating" Binding="{Binding Rating}" Width="50" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>
