@@ -2,6 +2,7 @@ namespace NTWallpaper.Infrastructure.Windows;
 
 using Microsoft.Win32;
 using NTWallpaper.Domain.Interfaces;
+using System.IO;
 
 /// <summary>Registers the app to start with Windows via the HKCU Run key (no admin required).</summary>
 public class StartupService : IStartupService

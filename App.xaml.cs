@@ -1,22 +1,20 @@
-using System.IO;
-using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NTWallpaper.Application.Orchestration;
-using NTWallpaper.Application.Services;
 using NTWallpaper.Domain.Interfaces;
 using NTWallpaper.Infrastructure.Networking;
 using NTWallpaper.Infrastructure.Persistence;
 using NTWallpaper.Infrastructure.Pixabay;
 using NTWallpaper.Infrastructure.Security;
 using NTWallpaper.Infrastructure.Windows;
+using NTWallpaper.Orchestration;
 using NTWallpaper.Presentation.ViewModels;
+using NTWallpaper.Services;
 using Serilog;
-using Serilog.Extensions.Logging;
+using System.IO;
+using System.Windows;
 
 namespace NTWallpaper;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private ServiceProvider? _services;
     private NotifyIcon? _trayIcon;
@@ -26,90 +24,224 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // Configure logging
-        var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixabayWallpaper", "logs", "ntwallpaper-.log");
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
-            .CreateLogger();
+        // Start async initialization without blocking the WPF UI thread.
+        _ = InitializeApplicationAsync(e);
+    }
 
-        // Default paths
-        var appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixabayWallpaper");
-        Directory.CreateDirectory(appData);
-        var dbPath = SettingsService.DefaultDatabasePath();
-        var cacheDir = Path.Combine(appData, "Wallpapers");
-        var secretDir = Path.Combine(appData, "secrets");
-
-        var db = new Database(dbPath);
-        db.Initialize();
-
-        // DI container
-        var services = new ServiceCollection();
-        services.AddSingleton(db);
-        services.AddSingleton<ISecureStorage>(_ => new SecureStorage(secretDir));
-        services.AddSingleton<ISettingsService, SettingsService>();
-        services.AddSingleton<ICacheService, CacheService>();
-        services.AddSingleton<IImageRepository, ImageRepository>();
-        services.AddSingleton<IGroupRepository, GroupRepository>();
-        services.AddSingleton<ITagRepository, TagRepository>();
-        services.AddSingleton<IImageProvider, PixabayImageProvider>();
-        services.AddSingleton<IImageDownloadService, ImageDownloadService>();
-        services.AddSingleton<IMonitorService, MonitorService>();
-        services.AddSingleton<IWallpaperService, WallpaperService>();
-        services.AddSingleton<ILockScreenService, LockScreenService>();
-        services.AddSingleton<IVirtualDesktopService, VirtualDesktopService>();
-        services.AddSingleton<IStartupService, StartupService>();
-        services.AddSingleton<IImageRenderingService, ImageRenderingService>();
-        services.AddSingleton<IRecommendationService, RecommendationService>();
-        services.AddSingleton<ISchedulerService, SchedulerService>();
-        services.AddSingleton<INotificationService, NotificationService>();
-        services.AddSingleton<WallpaperOrchestrator>();
-
-        services.AddLogging(b => b.AddSerilog(dispose: true));
-        services.AddSingleton<DashboardViewModel>();
-        services.AddSingleton<GroupsViewModel>();
-        services.AddSingleton<HistoryViewModel>();
-        services.AddSingleton<SearchViewModel>();
-        services.AddSingleton<SettingsViewModel>();
-        services.AddSingleton<MainViewModel>();
-        services.AddSingleton<MainWindow>();
-
-        _services = services.BuildServiceProvider();
-        Services = _services;
-
-        var orchestrator = _services.GetRequiredService<WallpaperOrchestrator>();
-        var settings = _services.GetRequiredService<ISettingsService>();
-        await settings.LoadAsync(default);
-
-        // Ensure cache directory
-        Directory.CreateDirectory(settings.Current.CacheDirectory);
-
-        await orchestrator.InitializeAsync(default);
-        orchestrator.Start();
-
-        // Tray icon
-        SetupTray(_services);
-
-        // Notifications → tray balloon
-        var notifications = _services.GetRequiredService<INotificationService>();
-        if (notifications is NotificationService ns)
+    private async Task InitializeApplicationAsync(StartupEventArgs e)
+    {
+        try
         {
-            ns.NotificationRequested += (_, args) => ShowTrayBalloon(args.Title, args.Message, args.Kind);
+            // =========================================================
+            // Logging
+            // =========================================================
+
+            var appData = Path.Combine(
+                Environment.GetFolderPath(
+                    Environment.SpecialFolder.LocalApplicationData),
+                "PixabayWallpaper");
+
+            Directory.CreateDirectory(appData);
+
+            var logDirectory = Path.Combine(appData, "logs");
+            Directory.CreateDirectory(logDirectory);
+
+            var logPath = Path.Combine(
+                logDirectory,
+                "ntwallpaper-.log");
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.File(
+                    logPath,
+                    rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            // =========================================================
+            // Default paths
+            // =========================================================
+
+            var dbPath = SettingsService.DefaultDatabasePath();
+
+            var cacheDir = Path.Combine(
+                appData,
+                "Wallpapers");
+
+            var secretDir = Path.Combine(
+                appData,
+                "secrets");
+
+            Directory.CreateDirectory(cacheDir);
+            Directory.CreateDirectory(secretDir);
+
+            // =========================================================
+            // Database
+            // =========================================================
+
+            var db = new Database(dbPath);
+            db.Initialize();
+
+            // =========================================================
+            // Dependency Injection
+            // =========================================================
+
+            var services = new ServiceCollection();
+
+            // Database
+            services.AddSingleton(db);
+
+            // Infrastructure
+            services.AddSingleton<ISecureStorage>(
+                _ => new SecureStorage(secretDir));
+
+            services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<ICacheService, CacheService>();
+
+            // Repositories
+            services.AddSingleton<IImageRepository, ImageRepository>();
+            services.AddSingleton<IGroupRepository, GroupRepository>();
+            services.AddSingleton<ITagRepository, TagRepository>();
+
+            // Providers / services
+            services.AddSingleton<IImageProvider, PixabayImageProvider>();
+            services.AddSingleton<IImageDownloadService, ImageDownloadService>();
+            services.AddSingleton<IMonitorService, MonitorService>();
+            services.AddSingleton<IWallpaperService, WallpaperService>();
+            services.AddSingleton<ILockScreenService, LockScreenService>();
+            services.AddSingleton<IVirtualDesktopService, VirtualDesktopService>();
+            services.AddSingleton<IStartupService, StartupService>();
+            services.AddSingleton<IImageRenderingService, ImageRenderingService>();
+            services.AddSingleton<IRecommendationService, RecommendationService>();
+            services.AddSingleton<ISchedulerService, SchedulerService>();
+            services.AddSingleton<INotificationService, NotificationService>();
+
+            // Application orchestration
+            services.AddSingleton<WallpaperOrchestrator>();
+
+            // Logging
+            services.AddLogging(builder =>
+                builder.AddSerilog(dispose: true));
+
+            // ViewModels
+            services.AddSingleton<DashboardViewModel>();
+            services.AddSingleton<GroupsViewModel>();
+            services.AddSingleton<HistoryViewModel>();
+            services.AddSingleton<SearchViewModel>();
+            services.AddSingleton<SettingsViewModel>();
+            services.AddSingleton<MainViewModel>();
+
+            // Main window
+            services.AddSingleton<MainWindow>();
+
+            // =========================================================
+            // Build DI container
+            // =========================================================
+
+            _services = services.BuildServiceProvider();
+
+            Services = _services;
+
+            // =========================================================
+            // Load settings
+            // =========================================================
+
+            var settings =
+                _services.GetRequiredService<ISettingsService>();
+
+            await settings.LoadAsync(default);
+
+            // =========================================================
+            // Ensure configured cache directory exists
+            // =========================================================
+
+            Directory.CreateDirectory(
+                settings.Current.CacheDirectory);
+
+            // =========================================================
+            // Initialize wallpaper orchestrator
+            // =========================================================
+
+            var orchestrator =
+                _services.GetRequiredService<WallpaperOrchestrator>();
+
+            await orchestrator.InitializeAsync(default);
+
+            orchestrator.Start();
+
+            // =========================================================
+            // System tray
+            // =========================================================
+
+            SetupTray(_services);
+
+            // =========================================================
+            // Notifications
+            // =========================================================
+
+            var notifications =
+                _services.GetRequiredService<INotificationService>();
+
+            if (notifications is NotificationService ns)
+            {
+                ns.NotificationRequested += (_, args) =>
+                {
+                    ShowTrayBalloon(
+                        args.Title,
+                        args.Message,
+                        args.Kind);
+                };
+            }
+
+            // =========================================================
+            // Startup arguments
+            // =========================================================
+
+            var startupArgs =
+                Environment.GetCommandLineArgs();
+
+            var startMinimized =
+                settings.Current.StartMinimized &&
+                !startupArgs.Any(a =>
+                    a.Equals(
+                        "--show",
+                        StringComparison.OrdinalIgnoreCase));
+
+            // =========================================================
+            // Main window
+            // =========================================================
+
+            var window =
+                _services.GetRequiredService<MainWindow>();
+
+            MainWindow = window;
+
+            if (!startMinimized)
+            {
+                window.Show();
+            }
+            else
+            {
+                _trayIcon?.ShowBalloonTip(
+                    2000,
+                    "Pixabay Wallpaper Manager",
+                    "Running in the system tray. Double-click the tray icon to open.",
+                    ToolTipIcon.Info);
+            }
         }
-
-        // Show window unless start-minimized
-        var startupArgs = Environment.GetCommandLineArgs();
-        var startMinimized = settings.Current.StartMinimized && !startupArgs.Any(a => a.Equals("--show", StringComparison.OrdinalIgnoreCase));
-
-        var window = _services.GetRequiredService<MainWindow>();
-        MainWindow = window;
-        if (!startMinimized)
+        catch (Exception ex)
         {
-            window.Show();
-        }
-        else
-        {
-            _trayIcon!.ShowBalloonTip(2000, "Pixabay Wallpaper Manager", "Running in the system tray. Double-click the tray icon to open.", ToolTipIcon.Info);
+            // Make sure startup exceptions are logged.
+            Log.Fatal(
+                ex,
+                "Application initialization failed.");
+
+            System.Windows.MessageBox.Show(
+                $"Application failed to start:\n\n{ex.Message}",
+                "Startup Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            Shutdown();
         }
     }
 

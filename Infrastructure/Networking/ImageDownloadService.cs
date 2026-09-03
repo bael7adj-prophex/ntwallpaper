@@ -2,6 +2,7 @@ namespace NTWallpaper.Infrastructure.Networking;
 
 using Microsoft.Extensions.Logging;
 using NTWallpaper.Domain.Interfaces;
+using System.IO;
 using System.Net.Http;
 
 /// <summary>Downloads an image from a URL and validates it is a real image before returning.</summary>

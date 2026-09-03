@@ -1,4 +1,4 @@
-namespace NTWallpaper.Application.Services;
+namespace NTWallpaper.Services;
 
 using System.Collections.Concurrent;
 using NTWallpaper.Domain.Interfaces;

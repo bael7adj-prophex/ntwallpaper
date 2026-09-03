@@ -2,6 +2,7 @@ namespace NTWallpaper.Infrastructure.Windows;
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using Microsoft.Extensions.Logging;
 using NTWallpaper.Domain.Enums;
 using NTWallpaper.Domain.Interfaces;
@@ -72,9 +73,9 @@ public class ImageRenderingService : IImageRenderingService
         var offsetX = rect.X + (rect.Width - drawW) / 2;
         var offsetY = rect.Y + (rect.Height - drawH) / 2;
 
-        g.Save();
+        var gstate = g.Save();
         g.IntersectClip(rect);
         g.DrawImage(image, (float)offsetX, (float)offsetY, (float)drawW, (float)drawH);
-        g.Restore();
+        g.Restore(gstate);
     }
 }

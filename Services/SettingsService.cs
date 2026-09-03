@@ -1,5 +1,6 @@
-namespace NTWallpaper.Application.Services;
+namespace NTWallpaper.Services;
 
+using System.IO;
 using System.Reflection;
 using Dapper;
 using Microsoft.Extensions.Logging;

@@ -1,5 +1,6 @@
 namespace NTWallpaper.Infrastructure.Security;
 
+using System.IO;
 using System.Security.Cryptography;
 using NTWallpaper.Domain.Interfaces;
 

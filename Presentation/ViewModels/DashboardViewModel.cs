@@ -3,9 +3,9 @@ namespace NTWallpaper.Presentation.ViewModels;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using NTWallpaper.Application.Orchestration;
 using NTWallpaper.Domain.Interfaces;
 using NTWallpaper.Domain.Models;
+using NTWallpaper.Orchestration;
 
 public partial class DashboardViewModel : ObservableObject
 {

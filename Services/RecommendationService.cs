@@ -1,4 +1,4 @@
-namespace NTWallpaper.Application.Services;
+namespace NTWallpaper.Services;
 
 using NTWallpaper.Domain.Interfaces;
 using NTWallpaper.Domain.Models;

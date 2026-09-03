@@ -1,6 +1,8 @@
 namespace NTWallpaper.Infrastructure.Persistence;
 
 using System.Data;
+using System.IO;
+using Dapper;
 using Microsoft.Data.Sqlite;
 
 /// <summary>Owns the SQLite connection and schema migrations.</summary>

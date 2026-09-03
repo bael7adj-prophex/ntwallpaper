@@ -3,6 +3,7 @@ namespace NTWallpaper.Infrastructure.Windows;
 using System.Drawing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
+using NTWallpaper.Domain.Enums;
 using NTWallpaper.Domain.Interfaces;
 using NTWallpaper.Domain.Models;
 

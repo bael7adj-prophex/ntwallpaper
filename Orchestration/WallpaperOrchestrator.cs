@@ -1,4 +1,4 @@
-namespace NTWallpaper.Application.Orchestration;
+namespace NTWallpaper.Orchestration;
 
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
@@ -8,6 +8,7 @@ using NTWallpaper.Domain.Models;
 using NTWallpaper.Domain.Options;
 using NTWallpaper.Infrastructure.Pixabay;
 using NTWallpaper.Infrastructure.Persistence;
+using System.IO;
 
 /// <summary>
 /// Core engine: for each group it searches Pixabay, recommends the best image,
@@ -37,6 +38,7 @@ public class WallpaperOrchestrator
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _groupLocks = new();
 
     public event EventHandler<StateChangedEventArgs>? StateChanged;
+
     public event EventHandler<WallpaperAppliedEventArgs>? WallpaperApplied;
 
     public WallpaperOrchestrator(
@@ -73,7 +75,7 @@ public class WallpaperOrchestrator
     {
         await _settings.LoadAsync(cancellationToken);
         _tags = (await _tagsRepo.GetAllAsync(cancellationToken)).ToList();
-        _discoveredTargets = _monitor.GetTargets();
+        _discoveredTargets = [.. _monitor.GetTargets()];
         _assignments = await LoadAssignmentsAsync(cancellationToken);
 
         _monitor.TargetsChanged += OnTargetsChanged;
@@ -87,9 +89,11 @@ public class WallpaperOrchestrator
     }
 
     public void Start() => _scheduler.Start();
+
     public void Stop() => _scheduler.Stop();
 
     public IReadOnlyList<WallpaperTarget> GetTargets() => _discoveredTargets;
+
     public IReadOnlyList<Tag> GetTags() => _tags;
 
     public async Task<IReadOnlyList<WallpaperGroup>> GetGroupsAsync(CancellationToken cancellationToken)

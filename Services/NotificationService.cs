@@ -1,4 +1,4 @@
-namespace NTWallpaper.Application.Services;
+namespace NTWallpaper.Services;
 
 using NTWallpaper.Domain.Interfaces;
 
@@ -8,7 +8,9 @@ public class NotificationService : INotificationService
     public event EventHandler<NotificationEventArgs>? NotificationRequested;
 
     public void ShowInfo(string title, string message) => Raise(title, message, NotificationKind.Info);
+
     public void ShowWarning(string title, string message) => Raise(title, message, NotificationKind.Warning);
+
     public void ShowError(string title, string message) => Raise(title, message, NotificationKind.Error);
 
     private void Raise(string title, string message, NotificationKind kind)

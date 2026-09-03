@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using NTWallpaper.Presentation.ViewModels;
 
 namespace NTWallpaper;
@@ -20,7 +20,7 @@ public partial class MainWindow : Window
         if (sender is ToggleButton tb && tb.Tag is string page)
         {
             _vm.Navigate(page);
-            if (tb.Parent is Panel panel)
+            if (tb.Parent is System.Windows.Controls.Panel panel)
                 foreach (var child in panel.Children)
                     if (child is ToggleButton other && other != tb) other.IsChecked = false;
             tb.IsChecked = true;

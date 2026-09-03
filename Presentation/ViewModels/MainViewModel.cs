@@ -1,8 +1,8 @@
 namespace NTWallpaper.Presentation.ViewModels;
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using NTWallpaper.Application.Orchestration;
 using NTWallpaper.Domain.Interfaces;
+using NTWallpaper.Orchestration;
 
 /// <summary>Top-level shell. Holds the currently-displayed child view-model.</summary>
 public partial class MainViewModel : ObservableObject
@@ -41,13 +41,22 @@ public partial class MainViewModel : ObservableObject
 
     public void Navigate(string page)
     {
-        (CurrentView, CurrentTitle) = page switch
+        CurrentTitle = page switch
         {
-            "Groups" => (_groups, "Groups"),
-            "History" => (_history, "History"),
-            "Search" => (_search, "Search"),
-            "Settings" => (_settings, "Settings"),
-            _ => (_dashboard, "Dashboard")
+            "Groups" => "Groups",
+            "History" => "History",
+            "Search" => "Search",
+            "Settings" => "Settings",
+            _ => "Dashboard"
+        };
+
+        CurrentView = page switch
+        {
+            "Groups" => _groups,
+            "History" => _history,
+            "Search" => _search,
+            "Settings" => _settings,
+            _ => _dashboard
         };
     }
 }

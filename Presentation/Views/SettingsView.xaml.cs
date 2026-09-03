@@ -4,7 +4,7 @@ using NTWallpaper.Presentation.ViewModels;
 
 namespace NTWallpaper.Presentation.Views;
 
-public partial class SettingsView : UserControl
+public partial class SettingsView : System.Windows.Controls.UserControl
 {
     public SettingsView()
     {

@@ -3,6 +3,7 @@ namespace NTWallpaper.Infrastructure.Persistence;
 using Microsoft.Extensions.Logging;
 using NTWallpaper.Domain.Interfaces;
 using NTWallpaper.Domain.Models;
+using System.IO;
 
 /// <summary>Local image cache: prevents duplicate downloads and tracks usage/history.</summary>
 public class CacheService : ICacheService

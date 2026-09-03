@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
 namespace NTWallpaper.Presentation.Views;
 
-public partial class DashboardView : UserControl
+public partial class DashboardView : System.Windows.Controls.UserControl
 {
     public DashboardView() => InitializeComponent();
 }

@@ -2,6 +2,7 @@ namespace NTWallpaper.Infrastructure.Windows;
 
 using Microsoft.Extensions.Logging;
 using NTWallpaper.Domain.Interfaces;
+using System.IO;
 
 /// <summary>
 /// Lock-screen integration via the Windows Personalization CSP registry.

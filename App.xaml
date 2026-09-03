@@ -1,4 +1,4 @@
-﻿<Application x:Class="NTWallpaper.App"
+﻿<Application x:Class="NTWallpaper.Core"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:NTWallpaper.Presentation.ViewModels"
