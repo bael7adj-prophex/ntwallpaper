@@ -1,0 +1,11 @@
+<Project>
+  <!-- Force a valid Windows TargetPlatformVersion. The .NET SDK's inference
+       resets TPV to 7.0 when no Windows SDK is detected in Program Files, which
+       breaks WPF markup compilation. We pin it here (imported last) so the value
+       survives that reset. The Windows SDK.NET.Ref pack (10.0.26100.x) is fetched
+       via EnableWindowsTargeting. -->
+  <PropertyGroup>
+    <TargetPlatformVersion>10.0.26100.0</TargetPlatformVersion>
+    <SupportedOSPlatformVersion>10.0.26100.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+</Project>
