@@ -23,7 +23,7 @@ public class AppSettings
     public string DatabasePath { get; set; } = string.Empty;
 
     public bool StartWithWindows { get; set; }
-    public bool StartMinimized { get; set; } = true;
+    public bool StartMinimized { get; set; } = false;
     public ThemePreference Theme { get; set; } = ThemePreference.System;
 
     public bool UseGlobalFallbackWhenGroupEmpty { get; set; } = true;
